@@ -31,14 +31,15 @@ public class MainActivity extends AppCompatActivity {
 
 
         db.execSQL("CREATE TABLE IF NOT EXISTS Photos (" +
-                " id INTEGER AUTOINCREMENT PRIMARY KEY," +
+                " id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 " location TEXT NOT NULL," +
                 " size INTEGER DEFAULT 0" +
                 ") ;");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS Tags (" +
-        "FOREIGN KEY(id) REFERENCES Photos(id)," +
-        "tag TEXT NOT NULL" +
+        "id INTEGER NOT NULL," +
+        "tag TEXT NOT NULL," +
+                "FOREIGN KEY (id) REFERENCES Photos(id)" +
         ") ;" );
 
         insertPhoto(db, "sdcard/p1.jpg", 100);
@@ -56,14 +57,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void insertPhoto(SQLiteDatabase db, String location, int size) {
-        db.execSQL("INSERT INTO Photos VALUES ( " + location + ", " + size + ");");
+        db.execSQL("INSERT INTO Photos (location, size) VALUES ( '" + location + "', " + size + ");");
     }
 
     protected void insertTag(SQLiteDatabase db, int id, String tag) {
-        db.execSQL("INSERT INTO Tags VALUES ( " + id + ", " + tag + ");");
+        db.execSQL("INSERT INTO Tags VALUES ( " + id + ", '" + tag + "');");
     }
 
     private void find() {
+        /**
+         * If tag and size both are entered, query the database to find the images
+         *     that have that exact tag and the exact size mentioned in the text views.
+         * If only a tag is entered, show all images having the specified tag.
+         * If only a size is entered, show all the images having the specified size.
+         */
         String[] selectionArgs = new String[2];
         selectionArgs[0] = (String) size.getText();
         selectionArgs[1] = (String) tag.getText();
