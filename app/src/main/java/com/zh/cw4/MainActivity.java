@@ -1,21 +1,33 @@
 package com.zh.cw4;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+    SQLiteDatabase db;
+    Button findButton;
+    TextView result;
+    TextView size;
+    TextView tag;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         createDB();
+        result = (TextView) findViewById(R.id.result);
+        size = (TextView) findViewById(R.id.size);
+        tag = (TextView) findViewById(R.id.tag);
         setContentView(R.layout.activity_main);
     }
 
     protected void createDB() {
-        SQLiteDatabase db = this.openOrCreateDatabase("CW4", Context.MODE_PRIVATE, null);
+        db = this.openOrCreateDatabase("CW4", Context.MODE_PRIVATE, null);
 
 
         db.execSQL("CREATE TABLE IF NOT EXISTS Photos (" +
@@ -49,5 +61,27 @@ public class MainActivity extends AppCompatActivity {
 
     protected void insertTag(SQLiteDatabase db, int id, String tag) {
         db.execSQL("INSERT INTO Tags VALUES ( " + id + ", " + tag + ");");
+    }
+
+    private void find() {
+        String[] selectionArgs = new String[2];
+        selectionArgs[0] = (String) size.getText();
+        selectionArgs[1] = (String) tag.getText();
+
+        StringBuffer sb = new StringBuffer();
+
+        Cursor c = db.rawQuery("SELECT * FROM Photos WHERE size= ? AND tag=?;", selectionArgs);
+        try {
+            while (c.moveToNext()) {
+                for (int i = 0; i < c.getColumnCount(); i++) {
+                    sb.append(c.getString(i));
+                }
+                sb.append("\n");
+            }
+        } finally {
+            c.close();
+        }
+
+        result.setText(sb.toString());
     }
 }
